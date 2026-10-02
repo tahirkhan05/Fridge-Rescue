@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fridge Rescue — Save Food. Cook Smart.</title>
+  <meta name="description" content="Snap your fridge, see what needs to be eaten first, and get instant easy meal ideas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c111d;
+      --surface: #161e2e;
+      --surface-elevated: #1f293d;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --text: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-light: rgba(16, 185, 129, 0.12);
+      
+      --urgent: #f43f5e;
+      --urgent-light: rgba(244, 63, 94, 0.12);
+      
+      --soon: #f59e0b;
+      --soon-light: rgba(245, 158, 11, 0.12);
+      
+      --fresh: #10b981;
+      --fresh-light: rgba(16, 185, 129, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation */
+    header {
+      background: rgba(12, 17, 29, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover { color: #fff; }
+    .nav-btn.active {
+      background: var(--surface-elevated);
+      color: #fff;
+    }
+
+    .header-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: #34d399;
+      background: var(--accent-light);
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Hero / Scanner Section */
+    .scanner-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .hero-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .hero-heading span {
+      color: var(--accent);
+    }
+
+    .hero-text {
+      color: var(--text-secondary);
+      font-size: 15px;
+      max-width: 580px;
+      line-height: 1.5;
+    }
+
+    /* Clean Upload Card */
+    .upload-card {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .upload-card:hover, .upload-card.dragover {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .upload-card input { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-subtle {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-subtle:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .quick-samples {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Processing Overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 17, 29, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .loading-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 36px;
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-status {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Results Dashboard */
+    .results-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 960px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fridge-view-box {
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+      aspect-ratio: 4/3;
+    }
+
+    .fridge-view-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Clean Category Feeds */
+    .feed-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 540px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .category-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .category-tag {
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      width: fit-content;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .tag-urgent { background: var(--urgent-light); color: #fda4af; }
+    .tag-soon { background: var(--soon-light); color: #fde68a; }
+    .tag-fresh { background: var(--fresh-light); color: #a7f3d0; }
+
+    /* Food Cards */
+    .food-card {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .food-card.card-urgent { border-left: 3px solid var(--urgent); }
+    .food-card.card-soon { border-left: 3px solid var(--soon); }
+    .food-card.card-fresh { border-left: 3px solid var(--fresh); }
+
+    .food-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .food-title {
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .food-qty {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .food-reason {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .food-card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .mini-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .mini-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    .mini-btn.btn-rescue {
+      color: #34d399;
+      background: var(--accent-light);
+    }
+
+    /* Recipe Section */
+    .recipe-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.04));
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .recipe-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .recipe-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recipe-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .recipe-box {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .recipe-tip {
+      font-size: 12px;
+      color: #fde68a;
+      background: var(--soon-light);
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    /* Clean Footer Note */
+    footer {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: auto;
+    }
+
+    /* Simple Edit Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .input-group label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .input-group input {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #fff;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-icon">🧊</div>
+      <div>
+        <div class="brand-name">Fridge Rescue</div>
+        <div class="brand-subtitle">Rescue food before it becomes waste.</div>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <button class="nav-btn active" onclick="showTab('scan')">Scan Fridge</button>
+      <button class="nav-btn" onclick="showTab('inventory')">My Fridge Items</button>
+      <button class="nav-btn" onclick="showTab('history')">Past Scans</button>
+      <button class="nav-btn" onclick="showTab('demo-view')">One-Screen View</button>
+    </nav>
+
+    <div class="header-badge">
+      <span>SDG 12: Zero Food Waste</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- SCANNER TAB -->
+    <div id="tab-scan">
+      <!-- Welcome / Dropzone -->
+      <section class="scanner-hero" id="hero-view">
+        <h1 class="hero-heading">What should you <span>cook first?</span></h1>
+        <p class="hero-text">
+          Upload a photo of your fridge. We'll identify items, check what's nearing its end, and give you an easy meal idea to use them up.
+        </p>
+
+        <div class="upload-card" id="drop-area" onclick="document.getElementById('file-picker').click()">
+          <span style="font-size: 28px;">📷</span>
+          <div style="font-weight: 600; font-size: 15px;">Drop your fridge photo here</div>
+          <div style="font-size: 12px; color: var(--text-muted);">or click to select from your device</div>
+          <input type="file" id="file-picker" accept="image/*" onchange="onFileSelected(event)">
+        </div>
+
+        <div class="quick-samples">
+          <span>Or try with a sample:</span>
+          <button class="btn btn-subtle" onclick="scanSample(1)">Sample Fridge 1</button>
+          <button class="btn btn-subtle" onclick="scanSample(2)">Sample Fridge 2</button>
+        </div>
+      </section>
+
+      <!-- RESULTS VIEW -->
+      <section class="results-wrap" id="results-view">
+        <div class="results-header">
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px;">What's In Your Fridge</h2>
+          <button class="btn btn-subtle" onclick="resetScan()">📷 Scan Another Fridge</button>
+        </div>
+
+        <div class="results-grid">
+          <!-- Left: Fridge Photo -->
+          <div class="panel">
+            <div class="panel-heading">
+              <span>Detected Items</span>
+              <span id="detected-counter" style="font-size: 13px; color: var(--text-secondary);">10 items</span>
+            </div>
+
+            <div class="fridge-view-box">
+              <img id="fridge-display-img" src="" alt="Fridge contents with detected items">
+            </div>
+
+            <div style="font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+              <span>Hover over boxes on image to see details</span>
+              <span>Tap items to update quantity</span>
+            </div>
+          </div>
+
+          <!-- Right: Action-Oriented Feed -->
+          <div class="panel">
+            <div class="panel-heading">
+              <span>Priority by Freshness</span>
+              <span style="font-size: 12px; color: var(--text-muted);">Earliest needs first</span>
+            </div>
+
+            <div class="feed-column" id="category-feed">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe Recommendation -->
+        <div class="recipe-banner" id="recipe-banner">
+          <div class="recipe-header">
+            <span class="recipe-name" id="recipe-title">👨‍🍳 Tonight's Quick Meal Idea</span>
+            <div class="recipe-meta" id="recipe-meta">
+              <!-- Meta tags -->
+            </div>
+          </div>
+
+          <div class="recipe-box" id="recipe-instructions">
+            <!-- Steps -->
+          </div>
+
+          <div class="recipe-tip" id="recipe-tip"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- INVENTORY TAB -->
+    <div id="tab-inventory" style="display: none;">
+      <div class="panel">
+        <div class="panel-heading">
+          <span>My Fridge Inventory</span>
+          <button class="mini-btn" onclick="loadInventory()">Refresh</button>
+        </div>
+        <div id="inventory-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="color: var(--text-muted); font-size: 13px;">Loading inventory...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAST SCANS TAB -->
+    <div id="tab-history" style="display: none;">
+      <div class="panel">
+        <div class="panel-heading">
+          <span>Past Fridge Scans</span>
+          <button class="mini-btn" onclick="loadPastScans()">Refresh</button>
+        </div>
+        <div id="history-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="color: var(--text-muted); font-size: 13px;">Loading history...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ONE-SCREEN DEMO TAB -->
+    <div id="tab-demo-view" style="display: none;">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+        <a href="/demo/demo_single_screen.html" target="_blank" class="btn btn-primary" style="font-size: 13px;">Open Standalone Demo View ↗</a>
+      </div>
+      <iframe src="/demo/demo_single_screen.html" style="width: 100%; height: 750px; border: 1px solid var(--border); border-radius: 14px;"></iframe>
+    </div>
+  </main>
+
+  <!-- Clean Modal for editing items -->
+  <div class="modal" id="edit-dialog">
+    <div class="modal-content">
+      <h3 style="font-size: 16px;">Update Item</h3>
+      <div class="input-group">
+        <label>Item Name</label>
+        <input type="text" id="edit-name">
+      </div>
+      <div class="input-group">
+        <label>Quantity</label>
+        <input type="number" id="edit-qty" min="1">
+      </div>
+      <div class="input-group">
+        <label>Expiry Date</label>
+        <input type="date" id="edit-date">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
+        <button class="mini-btn" onclick="closeEditDialog()">Cancel</button>
+        <button class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="saveItemChanges()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading-spinner">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div class="loading-status" id="loading-text">Analyzing your fridge...</div>
+    </div>
+  </div>
+
+  <!-- Human Disclaimer Footer -->
+  <footer>
+    💡 <strong>Note</strong>: Fridge Rescue provides food-waste guidance. Always check aroma, appearance, and packaging dates before preparing food.
+  </footer>
+
+  <script>
+    let currentEditId = null;
+
+    function showTab(id) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-scan').style.display = 'none';
+      document.getElementById('tab-inventory').style.display = 'none';
+      document.getElementById('tab-history').style.display = 'none';
+      document.getElementById('tab-demo-view').style.display = 'none';
+
+      if (id === 'scan') {
+        document.getElementById('tab-scan').style.display = 'block';
+        event.target.classList.add('active');
+      } else if (id === 'inventory') {
+        document.getElementById('tab-inventory').style.display = 'block';
+        event.target.classList.add('active');
+        loadInventory();
+      } else if (id === 'history') {
+        document.getElementById('tab-history').style.display = 'block';
+        event.target.classList.add('active');
+        loadPastScans();
+      } else if (id === 'demo-view') {
+        document.getElementById('tab-demo-view').style.display = 'block';
+        event.target.classList.add('active');
+      }
+    }
+
+    function resetScan() {
+      document.getElementById('hero-view').style.display = 'flex';
+      document.getElementById('results-view').style.display = 'none';
+    }
+
+    function onFileSelected(e) {
+      if (e.target.files && e.target.files[0]) {
+        processUpload(e.target.files[0]);
+      }
+    }
+
+    // Drag-and-drop
+    const dropArea = document.getElementById('drop-area');
+    ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); dropArea.classList.add('dragover'); }));
+    ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => { e.preventDefault(); dropArea.classList.remove('dragover'); }));
+    dropArea.addEventListener('drop', e => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) processUpload(files[0]);
+    });
+
+    function showLoading(msg) {
+      document.getElementById('loading-text').innerText = msg;
+      document.getElementById('loading-spinner').style.display = 'flex';
+    }
+    function hideLoading() {
+      document.getElementById('loading-spinner').style.display = 'none';
+    }
+
+    async function processUpload(file) {
+      showLoading('Checking what is in your fridge...');
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const res = await fetch('/api/scan', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Could not analyze photo');
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        alert('Scan error: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function scanSample(sampleNum) {
+      showLoading('Loading sample fridge...');
+      try {
+        const res = await fetch(`/api/demo/${sampleNum}`);
+        if (!res.ok) throw new Error('Could not load sample');
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        alert('Sample error: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function renderResults(data) {
+      document.getElementById('hero-view').style.display = 'none';
+      document.getElementById('results-view').style.display = 'flex';
+
+      // Photo
+      document.getElementById('fridge-display-img').src = data.annotated_image_url;
+      document.getElementById('detected-counter').innerText = `${data.inventory.total_items} items found`;
+
+      // Feed
+      const feed = document.getElementById('category-feed');
+      feed.innerHTML = '';
+
+      const grouped = data.inventory.grouped;
+
+      // 1. Use First
+      if (grouped.rescue_now && grouped.rescue_now.length > 0) {
+        const group = document.createElement('div');
+        group.className = 'category-group';
+        group.innerHTML = `<span class="category-tag tag-urgent">🚨 Cook or Freeze First (${grouped.rescue_now.length})</span>`;
+        grouped.rescue_now.forEach(it => group.appendChild(renderFoodCard(it, 'card-urgent')));
+        feed.appendChild(group);
+      }
+
+      // 2. Use Soon
+      if (grouped.use_soon && grouped.use_soon.length > 0) {
+        const group = document.createElement('div');
+        group.className = 'category-group';
+        group.innerHTML = `<span class="category-tag tag-soon">⚠️ Use In Next 2–3 Days (${grouped.use_soon.length})</span>`;
+        grouped.use_soon.forEach(it => group.appendChild(renderFoodCard(it, 'card-soon')));
+        feed.appendChild(group);
+      }
+
+      // 3. Still Fresh
+      if (grouped.stable && grouped.stable.length > 0) {
+        const group = document.createElement('div');
+        group.className = 'category-group';
+        group.innerHTML = `<span class="category-tag tag-fresh">🟢 Still Fresh (${grouped.stable.length})</span>`;
+        grouped.stable.forEach(it => group.appendChild(renderFoodCard(it, 'card-fresh')));
+        feed.appendChild(group);
+      }
+
+      // Recipe
+      const plan = data.rescue_plan;
+      document.getElementById('recipe-title').innerText = plan.headline || 'Tonight\'s Meal Idea';
+      
+      const rec = plan.recommended_recipes && plan.recommended_recipes[0];
+      if (rec) {
+        document.getElementById('recipe-meta').innerHTML = `
+          <span>⏱️ ${rec.prep_time}</span>
+          <span>Ingredients: ${rec.ingredients_used.join(', ')}</span>
+        `;
+        document.getElementById('recipe-instructions').innerHTML = rec.instructions.map((step, i) => `<div>${i + 1}. ${step}</div>`).join('');
+        document.getElementById('recipe-tip').innerHTML = `💡 <strong>Waste Tip</strong>: ${rec.waste_reduction_tip}`;
+        document.getElementById('recipe-banner').style.display = 'flex';
+      } else {
+        document.getElementById('recipe-instructions').innerHTML = `<div>${plan.summary}</div>`;
+        document.getElementById('recipe-banner').style.display = 'flex';
+      }
+    }
+
+    function renderFoodCard(item, cardClass) {
+      const card = document.createElement('div');
+      card.className = `food-card ${cardClass}`;
+
+      // Clean natural explanation
+      let naturalWhy = '';
+      if (item.freshness === 'stale') {
+        naturalWhy = 'Visual condition suggests it should be cooked today.';
+      } else if (item.days_remaining !== null && item.days_remaining <= 2) {
+        naturalWhy = `Package date is approaching in ${item.days_remaining} day(s).`;
+      } else if (item.quantity >= 3) {
+        naturalWhy = `Surplus amount (${item.quantity} items) — good to use before they soften.`;
+      } else {
+        naturalWhy = 'Currently in sound condition.';
+      }
+
+      card.innerHTML = `
+        <div class="food-card-top">
+          <span class="food-title">
+            ${getEmoji(item.name)} ${capitalize(item.name)}
+            <span class="food-qty">× ${item.quantity}</span>
+          </span>
+          <span style="font-size: 12px; font-weight: 600; color: ${item.score >= 60 ? '#fda4af' : (item.score >= 35 ? '#fde68a' : '#a7f3d0')}">
+            ${item.action_tag || item.tier}
+          </span>
+        </div>
+        <div class="food-reason">${naturalWhy}</div>
+        <div class="food-card-actions">
+          <button class="mini-btn" onclick="openEditDialog('${item.id}', '${item.name}', ${item.quantity}, '${item.expiry_date || ''}')">Edit</button>
+          <button class="mini-btn btn-rescue" onclick="recordRescued('${item.id}')">✓ I Used This</button>
+        </div>
+      `;
+      return card;
+    }
+
+    function getEmoji(name) {
+      const emojis = {
+        tomato: '🍅', apple: '🍎', banana: '🍌', milk: '🥛', eggs: '🥚',
+        cheese: '🧀', bread: '🍞', carrot: '🥕', butter: '🧈', chicken: '🍗',
+        beef: '🥩', mushrooms: '🍄', spinach: '🥬', orange: '🍊', capsicum: '🫑'
+      };
+      const n = name.toLowerCase();
+      for (const k in emojis) { if (n.includes(k)) return emojis[k]; }
+      return '🥗';
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).replace('_', ' ');
+    }
+
+    function openEditDialog(id, name, qty, date) {
+      currentEditId = id;
+      document.getElementById('edit-name').value = name;
+      document.getElementById('edit-qty').value = qty;
+      document.getElementById('edit-date').value = date;
+      document.getElementById('edit-dialog').style.display = 'flex';
+    }
+
+    function closeEditDialog() {
+      document.getElementById('edit-dialog').style.display = 'none';
+      currentEditId = null;
+    }
+
+    async function saveItemChanges() {
+      if (!currentEditId) return;
+      const updates = {
+        name: document.getElementById('edit-name').value,
+        quantity: parseInt(document.getElementById('edit-qty').value),
+        expiry_date: document.getElementById('edit-date').value || null
+      };
+      try {
+        await fetch(`/api/inventory/${currentEditId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates)
+        });
+        closeEditDialog();
+        alert('Updated!');
+      } catch (e) {
+        alert('Error saving: ' + e.message);
+      }
+    }
+
+    async function recordRescued(id) {
+      try {
+        await fetch(`/api/inventory/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rescued: 1 })
+        });
+        alert('Marked as rescued! Good job preventing food waste.');
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    async function loadInventory() {
+      const container = document.getElementById('inventory-list');
+      container.innerHTML = '<div style="color: var(--text-muted);">Loading items...</div>';
+      try {
+        const res = await fetch('/api/inventory');
+        const items = await res.json();
+        if (!items || items.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted);">No items recorded yet. Take a scan first!</div>';
+          return;
+        }
+        container.innerHTML = items.map(it => `
+          <div class="food-card">
+            <div class="food-card-top">
+              <span class="food-title">${getEmoji(it.name)} ${capitalize(it.name)} × ${it.quantity}</span>
+              <span style="font-size: 12px; color: var(--text-secondary);">${it.tier}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              ${it.expiry_date ? 'Expiry: ' + it.expiry_date : 'Fresh produce'}
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = `<div style="color: var(--urgent);">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function loadPastScans() {
+      const container = document.getElementById('history-list');
+      container.innerHTML = '<div style="color: var(--text-muted);">Loading scans...</div>';
+      try {
+        const res = await fetch('/api/scans');
+        const scans = await res.json();
+        if (!scans || scans.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted);">No scans recorded yet.</div>';
+          return;
+        }
+        container.innerHTML = scans.map(s => `
+          <div class="food-card">
+            <div class="food-card-top">
+              <span style="font-weight: 700;">Fridge Scan — ${new Date(s.scan_time).toLocaleDateString()}</span>
+              <span class="food-qty">${s.total_items} items</span>
+            </div>
+            <div style="display: flex; gap: 12px; font-size: 12px; margin-top: 4px; color: var(--text-secondary);">
+              <span>🚨 Need attention: ${s.rescue_now_count}</span>
+              <span>⚠️ Use soon: ${s.use_soon_count}</span>
+              <span>🟢 Fresh: ${s.stable_count}</span>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = `<div style="color: var(--urgent);">Error: ${e.message}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>

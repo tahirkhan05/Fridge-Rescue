@@ -1,0 +1,43 @@
+# Environment & Keys
+.env
+.env.local
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Datasets (do not commit gigabytes of raw images)
+datasets/smart_refrigerator/
+datasets/fresh_stale/
+datasets/*.zip
+datasets/*.tar.gz
+!datasets/README.md
+!datasets/.gitkeep
+
+# ML Training Artifacts & Baseline Weights
+runs/
+wandb/
+.pytest_cache/
+weights/
+yolo*.pt
+*.onnx
+
+# Uploads and User Runtime Images
+uploads/*
+!uploads/.gitkeep
+
+# Databases
+*.db
+*.sqlite3
+
+# Node / Frontend
+node_modules/
+dist/
+.next/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
